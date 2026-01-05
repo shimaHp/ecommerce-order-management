@@ -1,35 +1,55 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import './App.css';
+import OrderList from './components/OrderList';
+import OrderDetails from './components/OrderDetails';
+import CreateOrder from './components/CreateOrder';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleOrderCreated = () => {
+    setShowCreateForm(false);
+    setRefreshTrigger(prev => prev + 1); 
+  };
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 2)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="App">
+      <header>
+        <h1>📦 Order Management Dashboard</h1>
+      </header>
+
+      <main>
+        {showCreateForm ? (
+          <CreateOrder
+            onOrderCreated={handleOrderCreated}
+            onCancel={() => setShowCreateForm(false)}
+          />
+        ) : selectedOrderId ? (
+          <OrderDetails
+            orderId={selectedOrderId}
+            onClose={() => setSelectedOrderId(null)}
+          />
+        ) : (
+          <>
+            <div className="actions-bar">
+              <button
+                onClick={() => setShowCreateForm(true)}
+                className="btn-primary"
+              >
+                + Create New Order
+              </button>
+            </div>
+            <OrderList
+              onSelectOrder={setSelectedOrderId}
+              refreshTrigger={refreshTrigger}
+            />
+          </>
+        )}
+      </main>
+    </div>
+  );
 }
 
-export default App
+export default App;
