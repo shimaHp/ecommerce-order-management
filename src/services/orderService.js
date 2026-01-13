@@ -44,7 +44,28 @@ try {
 
 },
 
-DeleteOrder:async(id)=>{
+
+ updateOrderStatus: async (orderId, status) => {
+        try {
+            await axios.put(
+                `${API_URL}/${orderId}/status`,
+                status,
+                {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+        } catch (error) {
+            console.error('Error updating order status:', error);
+            throw error;
+        }
+    },
+
+
+
+
+debuggereleteOrder:async(id)=>{
     try {
         const respone=await axios.delete(`${API_URL}/${id}`);
         return respone.data;
