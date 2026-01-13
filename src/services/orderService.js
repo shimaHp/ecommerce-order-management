@@ -44,6 +44,9 @@ try {
 
 },
 
+deleteOrder: async (id) => {
+    await axios.delete(`${API_URL}/${id}`);
+},
 
  updateOrderStatus: async (orderId, status) => {
         try {
