@@ -28,9 +28,10 @@ function App() {
           />
         ) : selectedOrderId ? (
           <OrderDetails
-            orderId={selectedOrderId}
-            onClose={() => setSelectedOrderId(null)}
-          />
+  orderId={selectedOrderId}
+  onClose={() => setSelectedOrderId(null)}
+  onStatusUpdated={() => setRefreshTrigger(prev => prev + 1)}
+/>
         ) : (
           <>
             <div className="actions-bar">
