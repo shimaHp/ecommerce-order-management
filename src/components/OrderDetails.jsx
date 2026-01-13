@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import orderService from '../services/orderService';
 
-function OrderDetails({ orderId, onClose }) {
+function OrderDetails({ orderId, onClose,onStatusUpdated  }) {
+  const [status, setStatus] = useState(0);
+const [saving, setSaving] = useState(false);
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -14,12 +16,31 @@ function OrderDetails({ orderId, onClose }) {
       setLoading(true);
       const data = await orderService.getOrderById(orderId);
       setOrder(data);
+      setStatus(data.status);
     } catch (err) {
       console.error('Error loading order details:', err);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleUpdateStatus = async () => {
+  try {
+    setSaving(true);
+    await orderService.updateOrderStatus(order.id, status);
+
+    // update local UI
+    setOrder({ ...order, status });
+
+     onStatusUpdated();
+  } catch (err) {
+    console.error(err);
+    alert('Failed to update order status');
+  } finally {
+    setSaving(false);
+  }
+};
+
 
   const getStatusName = (status) => {
     const names = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
@@ -43,6 +64,30 @@ function OrderDetails({ orderId, onClose }) {
         <p><strong>Order Date:</strong> {new Date(order.orderDate).toLocaleString()}</p>
         <p><strong>Status:</strong> {getStatusName(order.status)}</p>
       </div>
+
+      <div className="status-update">
+  <h3>Update Order Status</h3>
+
+  <select
+    value={status}
+    onChange={(e) => setStatus(Number(e.target.value))}
+    disabled={saving}
+  >
+    <option value={0}>Pending</option>
+    <option value={1}>Processing</option>
+    <option value={2}>Shipped</option>
+    <option value={3}>Delivered</option>
+    <option value={4}>Cancelled</option>
+  </select>
+
+  <button
+    className="btn-primary"
+    onClick={handleUpdateStatus}
+    disabled={saving || status === order.status}
+  >
+    {saving ? 'Saving...' : 'Update Status'}
+  </button>
+</div>
 
       <div className="order-items">
         <h3>Order Items</h3>
