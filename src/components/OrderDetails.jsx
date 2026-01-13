@@ -6,6 +6,9 @@ function OrderDetails({ orderId, onClose,onStatusUpdated  }) {
 const [saving, setSaving] = useState(false);
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [deleting,setDeleting]= useState(false);
+ 
+
 
   useEffect(() => {
     loadOrderDetails();
@@ -41,6 +44,36 @@ const [saving, setSaving] = useState(false);
   }
 };
 
+const handleCancelOrder = async () => {
+  const confirmed = window.confirm(
+    'Are you sure you want to cancel this order? This action cannot be undone.'
+  );
+  if (!confirmed) return;
+
+  try {
+    setDeleting(true);
+
+    // Call status update API with Cancelled status (4)
+    await orderService.updateOrderStatus(order.id, 4);
+
+    // Update local state
+    setOrder({ ...order, status: 4 });
+
+    // Refresh list
+    onStatusUpdated();
+    onClose();
+
+  } catch (error) {
+    console.error('Failed to cancel order:', error);
+    alert('Failed to cancel order');
+  } finally {
+    setDeleting(false);
+  }
+}
+
+
+
+
 
   const getStatusName = (status) => {
     const names = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled'];
@@ -49,12 +82,20 @@ const [saving, setSaving] = useState(false);
 
   if (loading) return <div className="loading">Loading details...</div>;
   if (!order) return <div>Order not found.</div>;
+     const canCancel = order.status !== 3 && order.status !== 4;
 
   return (
     <div className="order-details">
       <div className="details-header">
         <h2>Order Details - {order.orderNumber}</h2>
         <button onClick={onClose}>✕ Close</button>
+        <button
+  onClick={handleCancelOrder} // rename
+  disabled={order.status === 3 || order.status === 4 || deleting} // can't cancel Delivered or already Cancelled
+  className="btn-danger"
+>
+  {deleting ? 'Cancelling...' : 'Cancel Order'}
+</button>
       </div>
 
       <div className="customer-info">
