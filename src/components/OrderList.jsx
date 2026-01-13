@@ -84,11 +84,7 @@ function OrderList({ onSelectOrder, refreshTrigger }) {
                     Details
                   </button>
                 </td>
-                <td>
-                  <button onClick={() => onSelectOrder(order.id)}>
-                    Delete
-                  </button>
-                </td>
+             
               </tr>
             ))}
           </tbody>
